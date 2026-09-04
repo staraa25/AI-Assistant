@@ -36,12 +36,23 @@ window.addEventListener("load", () => {
 let speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = new speechRecognition();
 
+// Set recognition options
+recognition.lang = "en-GB";
+recognition.continuous = false;
+recognition.interimResults = false;
+
 // Speech Recognition result handler
 recognition.onresult = (event) => {
   let currentIndex = event.resultIndex;
   let transcript = event.results[currentIndex][0].transcript;
-  content.innerText = transcript;
+  content.innerText = transcript;   // show what user said
   takeCommand(transcript);
+};
+
+// Reset UI if recognition ends (e.g., no speech)
+recognition.onend = () => {
+  btn.style.display = "flex";
+  voice.style.display = "none";
 };
 
 // Start recognition on button click
@@ -55,28 +66,41 @@ btn.addEventListener("click", () => {
 function takeCommand(message) {
   message = message.toLowerCase(); // Normalize input
 
+  // Show button again, hide voice indicator
   btn.style.display = "flex";
   voice.style.display = "none";
 
-  if (message.includes("hi ana")) {
-    speak("Hello sir, what can I help you");
-  } else if (message.includes("who are you")) {
-    speak("I am a virtual assistant created by Mr. Anish sir");
-  } else if (message.includes("open youtube")) {
+  if (message.includes("hi ana") || message.includes("hello ana")) {
+    speak("Hello sir, what can I help you?");
+  } 
+  else if (message.includes("ana can you listen me") || message.includes("can you hear me")) {
+    speak("Yes sir, I am listening.");  
+  } 
+  else if (message.includes("who are you")) {
+    speak("I am a virtual assistant created by Mr. Anish sir.");
+  } 
+  else if (message.includes("open youtube")) {
     speak("Opening YouTube");
     window.open("https://www.youtube.com", "_blank");
-  } else if (message.includes("open google")) {
+  } 
+  else if (message.includes("open google")) {
     speak("Opening Google");
     window.open("https://www.google.com", "_blank");
-  } else if (message.includes("time")) {
+  } 
+  else if (message.includes("open whatsapp")) {
+    speak("Opening WhatsApp");
+    window.open("https://web.whatsapp.com", "_blank");
+  } 
+  else if (message.includes("time")) {
     let time = new Date().toLocaleString(undefined, {
       hour: "numeric",
       minute: "numeric",
     });
     speak(`The time is ${time}`);
-  } else {
+  } 
+  else {
     let finalText = `This is what I found on the internet regarding ${message}`;
     speak(finalText);
-    window.open(`https://www.google.com/search?q=${message}`, "_blank");
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(message)}`, "_blank");
   }
 }
